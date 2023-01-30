@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="br.com.dio.desafioreactor.Question3Test" tests="2" skipped="0" failures="0" errors="0" timestamp="2023-01-30T15:46:16" hostname="DESKTOP-DEK0TGR" time="0.253">
+  <properties/>
+  <testcase name="validUser()" classname="br.com.dio.desafioreactor.Question3Test" time="0.194"/>
+  <testcase name="invalidUser()" classname="br.com.dio.desafioreactor.Question3Test" time="0.056"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="br.com.dio.desafioreactor.Question2Test" tests="2" skipped="0" failures="0" errors="0" timestamp="2023-01-30T15:46:16" hostname="DESKTOP-DEK0TGR" time="0.076">
+  <properties/>
+  <testcase name="hasXAdmins()" classname="br.com.dio.desafioreactor.Question2Test" time="0.042"/>
+  <testcase name="hasNoAdmin()" classname="br.com.dio.desafioreactor.Question2Test" time="0.033"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
