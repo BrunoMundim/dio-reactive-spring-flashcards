@@ -1,6 +1,6 @@
 package br.com.mundim.reactiveflashcards.api.controller;
 
-import br.com.mundim.reactiveflashcards.api.controller.response.UserRequest;
+import br.com.mundim.reactiveflashcards.api.controller.request.UserRequest;
 import br.com.mundim.reactiveflashcards.api.controller.response.UserResponse;
 import br.com.mundim.reactiveflashcards.api.mapper.UserMapper;
 import br.com.mundim.reactiveflashcards.domain.service.UserService;
@@ -17,7 +17,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Validated
 @RestController
-@RequestMapping
+@RequestMapping("users")
 @Slf4j
 @AllArgsConstructor
 public class UserController {
