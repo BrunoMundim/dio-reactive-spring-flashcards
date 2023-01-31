@@ -11,11 +11,16 @@ public class BaseErrorMessage {
 
     private final String DEFAULT_RESOURCE = "messages";
 
+    public static final BaseErrorMessage GENERIC_EXCEPTION = new BaseErrorMessage("generic");
+    public static final BaseErrorMessage GENERIC_NOT_FOUND = new BaseErrorMessage("generic.notFound");
+    public static final BaseErrorMessage GENERIC_METHOD_NOT_ALLOW = new BaseErrorMessage("generic.methodNotAllow");
+    public static final BaseErrorMessage GENERIC_BAD_REQUEST = new BaseErrorMessage("generic.badRequest");
+
     private final String key;
     private String[] params;
 
-    public BaseErrorMessage params(String... params) {
-        params = ArrayUtils.clone(params);
+    public BaseErrorMessage params(final String... params) {
+        this.params = ArrayUtils.clone(params);
         return this;
     }
 
