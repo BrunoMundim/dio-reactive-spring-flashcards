@@ -4,15 +4,14 @@ import br.com.mundim.reactiveflashcards.api.controller.request.UserRequest;
 import br.com.mundim.reactiveflashcards.api.controller.response.UserResponse;
 import br.com.mundim.reactiveflashcards.domain.document.UserDocument;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
-    // @Mapping(target = "id", ignore = true)
-    // @Mapping(target = "createdAt", ignore = true)
-    // @Mapping(target = "updatedAt", ignore = true)
     UserDocument toDocument(final UserRequest request);
+
+    UserDocument toDocument(final UserRequest request, final String id);
 
     UserResponse toResponse(final UserDocument document);
 

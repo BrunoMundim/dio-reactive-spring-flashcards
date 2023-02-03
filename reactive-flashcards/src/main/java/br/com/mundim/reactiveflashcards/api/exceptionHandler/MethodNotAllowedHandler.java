@@ -2,6 +2,7 @@ package br.com.mundim.reactiveflashcards.api.exceptionHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.web.server.MethodNotAllowedException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -10,6 +11,7 @@ import static br.com.mundim.reactiveflashcards.domain.exception.BaseErrorMessage
 import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
 
 @Slf4j
+@Component
 public class MethodNotAllowedHandler extends AbstractHandlerException<MethodNotAllowedException>{
 
     public MethodNotAllowedHandler(ObjectMapper mapper) {

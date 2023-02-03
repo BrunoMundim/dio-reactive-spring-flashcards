@@ -11,7 +11,10 @@ import java.time.OffsetDateTime;
 import java.util.Set;
 
 @Document(collection = "decks")
-public record DeckDocument(@Id String id, String name, String description, Set<Card> cards,
+public record DeckDocument(@Id String id,
+                           String name,
+                           String description,
+                           Set<Card> cards,
                            @CreatedDate @Field("created_at") OffsetDateTime creadetAt,
                            @LastModifiedDate @Field("updated_at") OffsetDateTime updatedAt) {
 
