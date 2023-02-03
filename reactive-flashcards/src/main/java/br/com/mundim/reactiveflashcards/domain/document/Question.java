@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.OffsetDateTime;
+import java.util.Objects;
 
 public record Question(String asked,
                        @Field("asked_in") OffsetDateTime askedIn,
@@ -19,6 +20,10 @@ public record Question(String asked,
 
     public QuestionBuilder toBuilder(){
         return new QuestionBuilder(asked, askedIn, answered, answeredIn, expected);
+    }
+
+    public Boolean isAnswered() {
+        return Objects.isNull(answeredIn);
     }
 
     @NoArgsConstructor

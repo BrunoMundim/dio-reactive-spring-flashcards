@@ -1,6 +1,7 @@
 package br.com.mundim.reactiveflashcards.domain.service.query;
 
 import br.com.mundim.reactiveflashcards.domain.document.UserDocument;
+import br.com.mundim.reactiveflashcards.domain.exception.EmailAlreadyUsedException;
 import br.com.mundim.reactiveflashcards.domain.exception.NotFoundException;
 import br.com.mundim.reactiveflashcards.domain.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -10,6 +11,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
+import static br.com.mundim.reactiveflashcards.domain.exception.BaseErrorMessage.EMAIL_ALREADY_USED;
 import static br.com.mundim.reactiveflashcards.domain.exception.BaseErrorMessage.USER_NOT_FOUND;
 
 @Service
@@ -31,6 +33,15 @@ public class UserQueryService {
                 .doFirst(() -> log.info("===== Try to find user with email {}", email))
                 .filter(Objects::nonNull)
                 .switchIfEmpty(Mono.defer(() -> Mono.error(new NotFoundException(USER_NOT_FOUND.params("email", email).getMessage()))));
+    }
+
+    public Mono<Void> verifyEmail(final UserDocument document){
+        return findByEmail(document.email())
+                .filter(stored -> stored.id().equals(document.id()))
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new EmailAlreadyUsedException(EMAIL_ALREADY_USED
+                        .params(document.email()).getMessage()))))
+                .onErrorResume(NotFoundException.class, e -> Mono.empty())
+                .then();
     }
 
 }
