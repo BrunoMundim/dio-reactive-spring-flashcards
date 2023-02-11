@@ -9,6 +9,7 @@ import br.com.mundim.reactiveflashcards.domain.dto.QuestionDTO;
 import br.com.mundim.reactiveflashcards.domain.dto.StudyDTO;
 import br.com.mundim.reactiveflashcards.domain.exception.DeckInStudyException;
 import br.com.mundim.reactiveflashcards.domain.exception.NotFoundException;
+import br.com.mundim.reactiveflashcards.domain.mapper.MailMapper;
 import br.com.mundim.reactiveflashcards.domain.mapper.StudyDomainMapper;
 import br.com.mundim.reactiveflashcards.domain.repository.StudyRepository;
 import br.com.mundim.reactiveflashcards.domain.service.query.DeckQueryService;
@@ -34,27 +35,28 @@ import static br.com.mundim.reactiveflashcards.domain.exception.BaseErrorMessage
 @AllArgsConstructor
 public class StudyService {
 
+    private final MailService mailService;
     private final UserQueryService userQueryService;
     private final DeckQueryService deckQueryService;
     private final StudyQueryService studyQueryService;
-
     private final StudyDomainMapper studyDomainMapper;
     private final StudyRepository studyRepository;
+    private final MailMapper mailMapper;
 
     public Mono<StudyDocument> start(final StudyDocument document) {
         return verifyStudy(document)
                 .then(userQueryService.findById(document.userId()))
-                    .flatMap(user -> deckQueryService.findById(document.studyDeck().deckId()))
-                    .flatMap(deck -> fillDeckStudyCards(document, deck.cards()))
-                    .map(study -> study.toBuilder()
+                .flatMap(user -> deckQueryService.findById(document.studyDeck().deckId()))
+                .flatMap(deck -> fillDeckStudyCards(document, deck.cards()))
+                .map(study -> study.toBuilder()
                         .question(studyDomainMapper.generateRandomQuestion(study.studyDeck().cards()))
                         .build())
-                    .doFirst(() -> log.info("===== generating a random question"))
-                    .flatMap(studyRepository::save)
-                    .doOnSuccess(study -> log.info("===== a follow study was save {}", study));
+                .doFirst(() -> log.info("===== generating a random question"))
+                .flatMap(studyRepository::save)
+                .doOnSuccess(study -> log.info("===== a follow study was save {}", study));
     }
 
-    private Mono<StudyDocument> fillDeckStudyCards(final StudyDocument document, final Set<Card> cards){
+    private Mono<StudyDocument> fillDeckStudyCards(final StudyDocument document, final Set<Card> cards) {
         return Flux.fromIterable(cards)
                 .doFirst(() -> log.info("===== copy cards to new study"))
                 .map(studyDomainMapper::toStudyCard)
@@ -64,7 +66,7 @@ public class StudyService {
 
     }
 
-    private Mono<Void> verifyStudy(final StudyDocument document){
+    private Mono<Void> verifyStudy(final StudyDocument document) {
         return studyQueryService.findPendingStudyByUserIdAndDeckId(document.userId(), document.studyDeck().deckId())
                 .flatMap(study -> Mono.defer(() -> Mono.error(new DeckInStudyException(DECK_IN_STUDY
                         .params(document.userId(), document.studyDeck().deckId()).getMessage()))))
@@ -97,7 +99,7 @@ public class StudyService {
 
     }
 
-    private Mono<List<String>> removeLastAsk(final List<String> asks, final String asked){
+    private Mono<List<String>> removeLastAsk(final List<String> asks, final String asked) {
         return Mono.just(asks)
                 .doFirst(() -> log.info("===== remove last asked question if it's not a last pending question in study "))
                 .filter(a -> a.size() == 1)
@@ -113,7 +115,9 @@ public class StudyService {
                 .switchIfEmpty(Mono.defer(() -> Mono.error(new NotFoundException(STUDY_DECK_NOT_FOUND.params(dto.id()).getMessage()))))
                 .flatMap(hasAnyAnswer -> generateNextQuestion(dto))
                 .map(questionDTO -> dto.toBuilder().question(questionDTO).build())
-                .onErrorResume(NotFoundException.class, e -> Mono.just(dto));
+                .onErrorResume(NotFoundException.class, e -> Mono.just(dto)
+                        .onTerminateDetach()
+                        .doOnSuccess(this::notifyUser));
     }
 
     private Mono<QuestionDTO> generateNextQuestion(final StudyDTO dto) {
@@ -126,6 +130,14 @@ public class StudyService {
                         .map(studyDomainMapper::toQuestion)
                         .findFirst()
                         .orElseThrow());
+    }
+
+    private void notifyUser(final StudyDTO dto) {
+        userQueryService.findById(dto.userId())
+                .zipWhen(user -> deckQueryService.findById(dto.studyDeck().deckId()))
+                .map(tuple -> mailMapper.toDTO(dto, tuple.getT2(), tuple.getT1()))
+                .flatMap(mailService::send)
+                .subscribe();
     }
 
 }
