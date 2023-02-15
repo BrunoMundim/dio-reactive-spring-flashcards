@@ -4,7 +4,6 @@ import br.com.mundim.reactiveflashcards.api.controller.request.DeckRequest;
 import br.com.mundim.reactiveflashcards.api.controller.response.DeckResponse;
 import br.com.mundim.reactiveflashcards.api.mapper.DeckMapper;
 import br.com.mundim.reactiveflashcards.core.validation.MongoId;
-import br.com.mundim.reactiveflashcards.domain.document.DeckDocument;
 import br.com.mundim.reactiveflashcards.domain.service.DeckService;
 import br.com.mundim.reactiveflashcards.domain.service.query.DeckQueryService;
 import lombok.AllArgsConstructor;
@@ -18,6 +17,7 @@ import reactor.core.publisher.Mono;
 import javax.validation.Valid;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Validated
@@ -51,5 +51,20 @@ public class DeckController {
         return deckQueryService.findById(id)
                 .doFirst(() -> log.info("===== finding a deck with follow id {}", id))
                 .map(deckMapper::toResponse);
+    }
+
+    @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE, value = "{id}")
+    public Mono<DeckResponse> update(@PathVariable @Valid @MongoId(message = "{deckController.id}") final String id,
+                                     @Valid @RequestBody final DeckRequest request){
+        return deckService.update(deckMapper.toDocument(request, id))
+                .doFirst(() -> log.info("===== updating a deck with follow info [bodY: {}, id: {}]", request, id))
+                .map(deckMapper::toResponse);
+    }
+
+    @DeleteMapping(value = "{id}")
+    @ResponseStatus(NO_CONTENT)
+    public Mono<Void> delete(@PathVariable @Valid @MongoId(message = "{deckController.id}") final String id){
+        return deckService.delete(id)
+                .doFirst(() -> log.info("===== deleting a deck with follow id {}", id));
     }
 }
