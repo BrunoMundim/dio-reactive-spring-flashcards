@@ -1,6 +1,8 @@
 package br.com.mundim.reactiveflashcards.api.controller;
 
+import br.com.mundim.reactiveflashcards.api.controller.request.UserPageRequest;
 import br.com.mundim.reactiveflashcards.api.controller.request.UserRequest;
+import br.com.mundim.reactiveflashcards.api.controller.response.UserPageResponse;
 import br.com.mundim.reactiveflashcards.api.controller.response.UserResponse;
 import br.com.mundim.reactiveflashcards.api.mapper.UserMapper;
 import br.com.mundim.reactiveflashcards.core.validation.MongoId;
@@ -44,6 +46,13 @@ public class UserController {
         return userQueryService.findById(id)
                 .doFirst(() -> log.info("===== finding a user with follow id {}", id))
                 .map(userMapper::toResponse);
+    }
+
+    @GetMapping(produces = APPLICATION_JSON_VALUE)
+    public Mono<UserPageResponse> findOnDemand(@Valid final UserPageRequest request) {
+        return userQueryService.findOnDemand(request)
+                .doFirst(() -> log.info("===== finding users on demand with follow request {}", request))
+                .map(page -> userMapper.toResponse(page, request.limit()));
     }
 
     @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE, value = "{id}")
