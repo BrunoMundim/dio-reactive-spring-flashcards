@@ -1,5 +1,6 @@
 package br.com.mundim.reactiveflashcards.api.controller;
 
+import br.com.mundim.reactiveflashcards.api.controller.documentation.DeckControllerDoc;
 import br.com.mundim.reactiveflashcards.api.controller.request.DeckRequest;
 import br.com.mundim.reactiveflashcards.api.controller.response.DeckResponse;
 import br.com.mundim.reactiveflashcards.api.mapper.DeckMapper;
@@ -8,7 +9,6 @@ import br.com.mundim.reactiveflashcards.domain.service.DeckService;
 import br.com.mundim.reactiveflashcards.domain.service.query.DeckQueryService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -25,12 +25,13 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping("decks")
 @Slf4j
 @AllArgsConstructor
-public class DeckController {
+public class DeckController implements DeckControllerDoc {
 
     public final DeckService deckService;
     public final DeckMapper deckMapper;
     public final DeckQueryService deckQueryService;
 
+    @Override
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(CREATED)
     public Mono<DeckResponse> save(@Valid @RequestBody final DeckRequest request){
@@ -39,6 +40,7 @@ public class DeckController {
                 .map(deckMapper::toResponse);
     }
 
+    @Override
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public Flux<DeckResponse> findAll(){
         return deckQueryService.findAll()
@@ -46,6 +48,7 @@ public class DeckController {
                 .map(deckMapper::toResponse);
     }
 
+    @Override
     @GetMapping(produces = APPLICATION_JSON_VALUE, value = "{id}")
     public Mono<DeckResponse> findById(@PathVariable @Valid @MongoId(message = "{deckController.id}") final String id){
         return deckQueryService.findById(id)
@@ -53,6 +56,7 @@ public class DeckController {
                 .map(deckMapper::toResponse);
     }
 
+    @Override
     @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE, value = "{id}")
     public Mono<DeckResponse> update(@PathVariable @Valid @MongoId(message = "{deckController.id}") final String id,
                                      @Valid @RequestBody final DeckRequest request){
@@ -61,6 +65,7 @@ public class DeckController {
                 .map(deckMapper::toResponse);
     }
 
+    @Override
     @DeleteMapping(value = "{id}")
     @ResponseStatus(NO_CONTENT)
     public Mono<Void> delete(@PathVariable @Valid @MongoId(message = "{deckController.id}") final String id){

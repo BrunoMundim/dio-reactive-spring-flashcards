@@ -1,15 +1,24 @@
 package br.com.mundim.reactiveflashcards.api.controller.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-public record UserPageResponse(@JsonProperty("currentPage") Long currentPage,
-                               @JsonProperty("totalPages") Long totalPages,
-                               @JsonProperty("totalItems") Long totalItems,
-                               @JsonProperty("content") List<UserResponse> content) {
+public record UserPageResponse(@JsonProperty("currentPage")
+                               @Schema(description = "Página retornada", example = "1")
+                               Long currentPage,
+                               @JsonProperty("totalPages")
+                               @Schema(description = "Total de páginas", example = "20")
+                               Long totalPages,
+                               @JsonProperty("totalItems")
+                               @Schema(description = "Quantidade de registros paginados", example = "400")
+                               Long totalItems,
+                               @JsonProperty("content")
+                               @Schema(description = "Usuário da página")
+                               List<UserResponse> content) {
 
     public static UserPageResponseBuilder builder() {
         return new UserPageResponseBuilder();
