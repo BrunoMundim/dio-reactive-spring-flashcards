@@ -15,7 +15,7 @@ public record DeckDocument(@Id String id,
                            String name,
                            String description,
                            Set<Card> cards,
-                           @CreatedDate @Field("created_at") OffsetDateTime creadetAt,
+                           @CreatedDate @Field("created_at") OffsetDateTime createdAt,
                            @LastModifiedDate @Field("updated_at") OffsetDateTime updatedAt) {
 
     @Builder(toBuilder = true)

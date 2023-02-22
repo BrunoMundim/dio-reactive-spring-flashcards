@@ -25,7 +25,7 @@ public class DeckService {
     public Mono<DeckDocument> update(final DeckDocument document){
         return deckQueryService.findById(document.id())
                 .map(deck -> document.toBuilder()
-                        .creadetAt(document.creadetAt())
+                        .createdAt(document.createdAt())
                         .updatedAt(document.updatedAt())
                         .build())
                 .flatMap(deckRepository::save)

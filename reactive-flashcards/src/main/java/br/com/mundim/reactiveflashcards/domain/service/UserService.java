@@ -38,7 +38,7 @@ public class UserService{
         return userQueryService.verifyEmail(document)
                 .then(userQueryService.findById(document.id())
                     .map(user -> document.toBuilder()
-                        .creadetAt(user.creadetAt())
+                        .createdAt(user.createdAt())
                         .updatedAt(user.updatedAt())
                         .build())
                     .flatMap(userRepository::save)
