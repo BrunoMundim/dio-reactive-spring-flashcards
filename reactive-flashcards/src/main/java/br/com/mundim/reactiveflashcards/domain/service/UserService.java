@@ -20,7 +20,7 @@ import static br.com.mundim.reactiveflashcards.domain.exception.BaseErrorMessage
 @AllArgsConstructor
 @Slf4j
 @Service
-public class UserService{
+public class UserService {
 
     private final UserRepository userRepository;
     private final UserQueryService userQueryService;
@@ -34,15 +34,23 @@ public class UserService{
                 .onErrorResume(NotFoundException.class, e -> userRepository.save(document));
     }
 
+    private Mono<Void> verifyEmail(final UserDocument document){
+        return userQueryService.findByEmail(document.email())
+                .filter(stored -> stored.id().equals(document.id()))
+                .switchIfEmpty(Mono.defer(() ->Mono.error(new EmailAlreadyUsedException(EMAIL_ALREADY_USED
+                        .params(document.email()).getMessage()))))
+                .onErrorResume(NotFoundException.class, e -> Mono.empty())
+                .then();
+    }
     public Mono<UserDocument> update(final UserDocument document) {
-        return userQueryService.verifyEmail(document)
-                .then(userQueryService.findById(document.id())
-                    .map(user -> document.toBuilder()
-                        .createdAt(user.createdAt())
-                        .updatedAt(user.updatedAt())
-                        .build())
-                    .flatMap(userRepository::save)
-                    .doFirst(() -> log.info("===== try to update a user with follow info {}", document)));
+        return verifyEmail(document)
+                .then(Mono.defer(() -> userQueryService.findById(document.id())
+                            .map(user -> document.toBuilder()
+                                    .createdAt(user.createdAt())
+                                    .updatedAt(user.updatedAt())
+                                    .build())
+                            .flatMap(userRepository::save)
+                            .doFirst(() -> log.info("===== try to update a user with follow info {}", document))));
     }
 
     public Mono<Void> delete(@PathVariable @Valid @MongoId(message = "{userController.id}") final String id) {

@@ -39,15 +39,6 @@ public class UserQueryService {
                 .switchIfEmpty(Mono.defer(() -> Mono.error(new NotFoundException(USER_NOT_FOUND.params("email", email).getMessage()))));
     }
 
-    public Mono<Void> verifyEmail(final UserDocument document){
-        return findByEmail(document.email())
-                .filter(stored -> stored.id().equals(document.id()))
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new EmailAlreadyUsedException(EMAIL_ALREADY_USED
-                        .params(document.email()).getMessage()))))
-                .onErrorResume(NotFoundException.class, e -> Mono.empty())
-                .then();
-    }
-
     public Mono<UserPageDocument> findOnDemand(final UserPageRequest request){
         return userRepositoryImpl.findOnDemand(request)
                 .collectList()
